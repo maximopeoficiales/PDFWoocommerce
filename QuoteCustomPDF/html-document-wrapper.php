@@ -5,14 +5,16 @@ require plugin_dir_path(__FILE__) . "wc-orders-custom/OrderCustom.php";
 $order = new OrderCustomPDF($this->order_id);
 $data = $order->getOrderData();
 $currentOrder = $order->getOrder();
-echo $order->getOrder()->get_billing_address_1();
+
+
+// echo $order->getOrder()->get_billing_address_1();
 ?>
 <!DOCTYPE html>
 <html>
 
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title><?php echo $this->get_title(); ?></title>
+	<title><?php echo $this->order_id; ?></title>
 	<style type="text/css">
 		<?php $this->template_styles(); ?>
 	</style>
@@ -40,9 +42,9 @@ echo $order->getOrder()->get_billing_address_1();
 <body>
 	<div>
 		<div class="p-2">
-			<img src="<?php echo esc_url($logo); ?>" class="rounded-lg" style="max-width: 150px;">
+			<img src="http://tiendaenlinea.precor.pe/wp-content/uploads/2020/07/LOGO-PRECOR-SIN-PMP.jpg" class="rounded-lg" style="max-width: 150px;">
 			<div class=" text-uppercase float-right mb-2">
-				<p class=" p-2  my-1"><b>Cotizacion:</b> <?= $order_id ?></p>
+				<p class=" p-2  my-1"><b>Cotizacion:</b> <?= $this->order_id ?></p>
 				<p class=" p-2  my-1"><b>Fecha:</b> <?= $data["date_created"] ?></p>
 			</div>
 			<br>
