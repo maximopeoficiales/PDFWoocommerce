@@ -1,11 +1,10 @@
 <?php if (!defined("ABSPATH")) {
-	exit();
+   exit();
 }
 require plugin_dir_path(__FILE__) . "wc-orders-custom/OrderCustom.php";
 $order = new OrderCustomPDF($this->order_id);
 $data = $order->getOrderData();
 $currentOrder = $order->getOrder();
-
 
 // echo $order->getOrder()->get_billing_address_1();
 ?>
@@ -14,7 +13,7 @@ $currentOrder = $order->getOrder();
 
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title><?php echo $this->order_id; ?></title>
+	<title><?php echo "Pedido " . $this->order_id; ?></title>
 	<style type="text/css">
 		<?php $this->template_styles(); ?>
 	</style>
@@ -52,8 +51,10 @@ $currentOrder = $order->getOrder();
 
 	</div>
 	<div class="my-2 border text-uppercase text-sm p-2  border-dark">
-		<p class=""><b>CLIENTE:</b> <?= $data["customer_id_cli"] != null ? $data["customer_id_cli"] : "N/A"   ?> <?= $currentOrder->get_billing_first_name() ?></p>
-		<p class=""><b>DIRECCION:</b> <?= $currentOrder->get_billing_address_1() ?></p>
+		<p class=""><b>CLIENTE:</b> <?= $data["customer_id_cli"] != null
+     ? $data["customer_id_cli"]
+     : "N/A" ?> <?= $currentOrder->get_billing_first_name() ?></p>
+		<p class=""><b>DIRECCION:</b> <?= $data["customer_drcfisc"] ?></p>
 		<p class=""><b>TELEFONO:</b> <?= $currentOrder->get_billing_phone() ?></p>
 		<p class=""><b>ATENCION:</b> <?= $data["customer_nombeje"] ?></p>
 	</div>
@@ -77,22 +78,36 @@ $currentOrder = $order->getOrder();
 		</thead>
 		<tbody class="text-8">
 			<?php
-			// recorro los productos
-			$cont = 0;
-			$pesoTotalKg = 0;
-			foreach ($data["line_items"] as $product) {
-				$cont += 10;
-				$pesoTotalKg += $product["quantity"] * round(0.5 * doubleval($product["quantity"]), 2);
-				$und = $product["und"] != null ? $product["und"] : "";
-				$undValue = $product["und_value"] != null ? round(doubleval($product["und_value"]), 2) : "";
-				$pza = ($und != "" || $undValue != "") ? round($product["quantity"] / $undValue, 2) : "";
+   // recorro los productos
+   $cont = 0;
+   $pesoTotalKg = 0;
+   foreach ($data["line_items"] as $product) {
 
-				$pesoPiezaKg = round(0.5 * doubleval($product["quantity"]), 2);
-				$totalPesoPiezaKG = $product["quantity"] * round(0.5 * doubleval($product["quantity"]), 2);
-			?>
+      $cont += 10;
+      $pesoTotalKg +=
+         $product["quantity"] * round(0.5 * doubleval($product["quantity"]), 2);
+      $und = $product["und"] != null ? $product["und"] : "";
+      $undValue =
+         $product["und_value"] != null
+            ? round(doubleval($product["und_value"]), 2)
+            : "";
+      $pza =
+         $und != "" || $undValue != ""
+            ? round($product["quantity"] / $undValue, 2)
+            : "";
+
+      $pesoPiezaKg = round(0.5 * doubleval($product["quantity"]), 2);
+      $totalPesoPiezaKG =
+         $product["quantity"] * round(0.5 * doubleval($product["quantity"]), 2);
+      ?>
 				<tr>
 					<!-- nitem -->
-					<td scope="row" class="text-8 text-center"><?php echo str_pad($cont, 4, "0", STR_PAD_LEFT); ?></td>
+					<td scope="row" class="text-8 text-center"><?php echo str_pad(
+        $cont,
+        4,
+        "0",
+        STR_PAD_LEFT
+     ); ?></td>
 					<!-- cantidad -->
 					<td class="text-8 text-center"><?= $product["quantity"] ?></td>
 					<!-- id_material -->
@@ -100,21 +115,24 @@ $currentOrder = $order->getOrder();
 					<!-- nombre -->
 					<td class="text-8 text-left"><?= $product["name"] ?></td>
 					<!-- paquete / valor de paquete -->
-					<td class="text-8 text-center"><?= ($und != "" || $undValue != "") ? $und . "/" . $undValue : ""  ?></td>
+					<td class="text-8 text-center"><?= $und != "" || $undValue != ""
+        ? $und . "/" . $undValue
+        : "" ?></td>
 					<!-- piezas -->
-					<td class="text-8 text-right"><?= $pza == INF ? "" : $pza   ?></td>
+					<td class="text-8 text-right"><?= $pza == INF ? "" : $pza ?></td>
 					<!-- pezo pieza kg -->
-					<td class="text-8 text-right"><?= $pesoPiezaKg  ?></td>
+					<td class="text-8 text-right"><?= $pesoPiezaKg ?></td>
 					<!-- precio del producto -->
 					<td class="text-8 text-right"><?= $product["price"] ?></td>
 					<!-- precio con descuento -->
 					<td class="text-8 text-right"><?= $product["total"] ?></td>
 					<!-- <td class="text-8 text-right"></td> -->
 					<!-- total de kg del producto -->
-					<td class="text-8 text-right"><?= $totalPesoPiezaKG   ?></td>
+					<td class="text-8 text-right"><?= $totalPesoPiezaKG ?></td>
 				</tr>
 			<?php
-			} ?>
+   }
+   ?>
 		</tbody>
 	</table>
 
@@ -123,14 +141,22 @@ $currentOrder = $order->getOrder();
 		<h6 class="text-bold">Observaciones:</h6>
 		<div class="border border-dark text-uppercase float-right">
 			<p class=" p-2  "><b>PESO TOT KG:</b> <?= round($pesoTotalKg, 2) ?></p>
-			<p class=" p-2 "><b>Subtotal:</b> <?= round($currentOrder->get_total() / 1.18, 2) ?></p>
-			<p class=" p-2  "><b>IGV (18%):</b> <?= round($currentOrder->get_total() - round($currentOrder->get_total() / 1.18, 2), 2) ?></p>
+			<p class=" p-2 "><b>Subtotal:</b> <?= round(
+      $currentOrder->get_total() / 1.18,
+      2
+   ) ?></p>
+			<p class=" p-2  "><b>IGV (18%):</b> <?= round(
+      $currentOrder->get_total() - round($currentOrder->get_total() / 1.18, 2),
+      2
+   ) ?></p>
 			<p class=" p-2 "><b>PERC.( %):</b> 0.00</p>
 			<p class=" p-2  "><b>TOTAL USD:</b> <?= $currentOrder->get_total() ?></p>
 		</div>
 		<div class="">
 			<div style="width: 70%;">
-				<p class="text-10"><?= $currentOrder->get_customer_note() != "" ? $currentOrder->get_customer_note() : "Sin Observaciones"   ?>
+				<p class="text-10"><?= $currentOrder->get_customer_note() != ""
+       ? $currentOrder->get_customer_note()
+       : "Sin Observaciones" ?>
 				<p>
 			</div>
 
@@ -201,6 +227,7 @@ $currentOrder = $order->getOrder();
 			<p class="p-2 border text-center text-9"><b>DESPACHO/LOCAL DEL CLIENTE/DESESTIBA A CARGO DE PRECOR/COLOCAR EN RACKS</b></p>
 		</div>
 		<p class="my-1">Precor entrega el material en el lugar de destino acordado por el Cliente:</p>
+<p class="text-center border p-2 font-weight-bold" style="font-size: 12px ;border-style: dashed;"><?= $currentOrder->get_billing_address_1() ?></p>
 		<div class="my-2 w-100 text-9">
 			<div class="py-2 pl-5">
 				<ol>
@@ -265,8 +292,10 @@ $currentOrder = $order->getOrder();
 	</div>
 	<!-- fin de condiciones -->
 	<div class="my-2 float-left">
-		<p>VIVIANA ALARCON AQUIJE</p>
-		<p>7054000 ext. 2102</p>
+   <p><?= $data["customer_nombeje"] ?></p>
+ <p><?= $data["customer_telfeje"] ?></p>
+ <p><?= $data["customer_emaileje"] ?></p>
+
 		<p>Av. Manuel Olguin 373, Edificio Qubo</p>
 		<p>Piso 9, Surco, Lima</p>
 		<p>Telf.: (511) 705-4000</p>
